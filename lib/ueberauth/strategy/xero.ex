@@ -5,7 +5,7 @@ defmodule Ueberauth.Strategy.Xero do
   """
 
   use Ueberauth.Strategy,
-    uid_field: :sub,
+    uid_field: :xero_userid,
     access_type: "offline",
     default_scope: "openid"
 
@@ -22,9 +22,7 @@ defmodule Ueberauth.Strategy.Xero do
       |> with_param(:access_type, conn)
       |> with_state_param(conn)
 
-    opts =
-      oauth_client_options_from_conn(conn)
-      |> with_param(:shop, conn)
+    opts = oauth_client_options_from_conn(conn)
 
     redirect!(conn, Ueberauth.Strategy.Xero.OAuth.authorize_url!(params, opts))
   end
@@ -47,7 +45,7 @@ defmodule Ueberauth.Strategy.Xero do
   end
 
   def credentials(conn) do
-    token = conn.private.shopify_token
+    token = conn.private.xero_token
     scope_string = token.other_params["scope"] || ""
     scopes = String.split(scope_string, ",")
 
@@ -82,5 +80,27 @@ defmodule Ueberauth.Strategy.Xero do
 
   defp option(conn, key) do
     Keyword.get(options(conn), key, Keyword.get(default_options(), key))
+  end
+
+  def decode_token(token) do
+    Application.get_env(:ueberauth, Ueberauth.Strategy.Xero.OAuth)[:client_secret]
+    |> JOSE.JWK.from_oct()
+    |> JOSE.JWT.verify(token)
+  end
+
+  @doc """
+  Fetches the uid field from the response.
+  """
+  def uid(conn) do
+    uid_field =
+      conn
+      |> option(:uid_field)
+      |> to_string
+
+    {_, jwt, _} =
+      conn.private.xero_token.access_token
+      |> decode_token()
+
+    jwt.fields[uid_field]
   end
 end
