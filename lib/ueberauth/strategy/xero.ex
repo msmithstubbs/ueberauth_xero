@@ -35,13 +35,11 @@ defmodule Ueberauth.Strategy.Xero do
   def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
     params = [code: code]
 
-    opts =
-      oauth_client_options_from_conn(conn)
-      |> with_param(:shop, conn)
+    opts = oauth_client_options_from_conn(conn)
 
     case Ueberauth.Strategy.Xero.OAuth.get_access_token(params, opts) do
       {:ok, token} ->
-        put_private(conn, :shopify_token, token)
+        put_private(conn, :xero_token, token)
 
       {:error, {error_code, error_description}} ->
         set_errors!(conn, [error(error_code, error_description)])
