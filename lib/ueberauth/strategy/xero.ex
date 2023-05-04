@@ -6,7 +6,7 @@ defmodule Ueberauth.Strategy.Xero do
 
   use Ueberauth.Strategy,
     uid_field: :xero_userid,
-    access_type: "offline",
+    reponse_type: "code",
     default_scope: "openid"
 
   alias Ueberauth.Auth.Credentials
@@ -18,8 +18,8 @@ defmodule Ueberauth.Strategy.Xero do
 
     params =
       [scope: scopes]
-      |> with_optional(:access_type, conn)
-      |> with_param(:access_type, conn)
+      |> with_optional(:reponse_type, conn)
+      |> with_param(:reponse_type, conn)
       |> with_state_param(conn)
 
     opts = oauth_client_options_from_conn(conn)
