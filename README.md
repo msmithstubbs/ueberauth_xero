@@ -16,14 +16,14 @@ def deps do
 end
 ```
 
-3.  Add Google to your Überauth configuration:
+3.  Add Xero to your Überauth configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Google, []}
+    xero: {Ueberauth.Strategy.Xero, []}
   ]
-    ```
+```
 
 4.  Update your provider configuration:
 
