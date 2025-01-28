@@ -82,6 +82,10 @@ defmodule Ueberauth.Strategy.Xero do
     Keyword.get(options(conn), key, Keyword.get(default_options(), key))
   end
 
+  @doc """
+  Decodes the given token.
+
+  """
   def decode_token(token) do
     Application.get_env(:ueberauth, Ueberauth.Strategy.Xero.OAuth)[:client_secret]
     |> JOSE.JWK.from_oct()
@@ -103,4 +107,19 @@ defmodule Ueberauth.Strategy.Xero do
 
     jwt.fields[uid_field]
   end
+
+  def extra(conn), do: struct(Ueberauth.Auth.Extra, raw_info: conn.params)
+
+  def info(conn) do
+    %{other_params: %{"id_token" => id_token}} = conn.private.xero_token
+
+    {_, jwt, _} = id_token |> decode_token()
+
+    struct(Ueberauth.Auth.Info, first_name: jwt.fields["given_name"], last_name:
+      jwt.fields["last_name"],
+      name: jwt.fields["name"],
+      email: jwt.fields["email"],
+      nickname: jwt.fields["preferred_username"])
+  end
+
 end
