@@ -115,11 +115,12 @@ defmodule Ueberauth.Strategy.Xero do
 
     {_, jwt, _} = id_token |> decode_token()
 
-    struct(Ueberauth.Auth.Info, first_name: jwt.fields["given_name"], last_name:
-      jwt.fields["last_name"],
+    struct(Ueberauth.Auth.Info,
+      first_name: jwt.fields["given_name"],
+      last_name: jwt.fields["family_name"],
       name: jwt.fields["name"],
       email: jwt.fields["email"],
-      nickname: jwt.fields["preferred_username"])
+      nickname: jwt.fields["preferred_username"]
+    )
   end
-
 end
